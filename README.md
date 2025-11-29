@@ -112,6 +112,25 @@ tests/
 
 ---
 
+## Spectral Lab (modulo esterno)
+
+Nella cartella `lab/` è presente un piccolo **laboratorio spettrografico**:
+
+- `lab/spectral_filters.py`:
+  - definisce la dataclass `Spectrum` (risultato di un passaggio di filtro),
+  - fornisce filtri base (`spectrum_black`, `spectrum_white`, `spectrum_custom`),
+  - permette pipeline del tipo `f(Spectrum_prev) -> nuovo filtro`, senza toccare il core.
+
+Esempio:
+
+```bash
+python examples/demo_spectral_pipeline.py
+```
+
+Mostra una pipeline minimale dove un filtro dipende dallo spettro precedente.
+
+---
+
 ## Stato del progetto
 
 - **Versione:** 0.1.0 (prototype)

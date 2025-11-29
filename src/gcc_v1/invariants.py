@@ -13,9 +13,9 @@ This module computes:
 
 from __future__ import annotations
 
-from dataclasses import dataclass, asdict
-from typing import Dict, List
 import hashlib
+from dataclasses import asdict, dataclass
+from typing import Dict, List
 
 
 @dataclass
@@ -26,15 +26,11 @@ class CID:
     H_p: int
     Mass_p: int
     Supp_p: int
-    mu_p_q: int   # quantized center of mass (0..65535)
+    mu_p_q: int  # quantized center of mass (0..65535)
     sigma_p_q: int  # quantized spread (0..65535)
 
 
-def _compute_cid_for_prime(
-    M: List[List[int]],
-    prime_index: int,
-    p: int,
-) -> CID:
+def _compute_cid_for_prime(M: List[List[int]], prime_index: int, p: int) -> CID:
     H_total = len(M)
     if H_total == 0:
         return CID(p=p, H_p=0, Mass_p=0, Supp_p=0, mu_p_q=0, sigma_p_q=0)
@@ -65,7 +61,7 @@ def _compute_cid_for_prime(
 
         # Variance and spread
         var = sum((h - mu) ** 2 * truncated[h] for h in range(H_p)) / Mass_p
-        sigma = var ** 0.5
+        sigma = var**0.5
         sigma_norm = max(0.0, min(1.0, sigma / norm))
         sigma_q = int(round(sigma_norm * 65535))
     else:
@@ -73,27 +69,17 @@ def _compute_cid_for_prime(
         sigma_q = 0
 
     return CID(
-        p=p,
-        H_p=H_p,
-        Mass_p=Mass_p,
-        Supp_p=Supp_p,
-        mu_p_q=mu_q,
-        sigma_p_q=sigma_q,
+        p=p, H_p=H_p, Mass_p=Mass_p, Supp_p=Supp_p, mu_p_q=mu_q, sigma_p_q=sigma_q
     )
 
 
 def compute_cids(M: List[List[int]], primes: List[int]) -> Dict[int, CID]:
     """Compute CID_p for all primes in column order."""
-    return {
-        p: _compute_cid_for_prime(M, j, p)
-        for j, p in enumerate(primes)
-    }
+    return {p: _compute_cid_for_prime(M, j, p) for j, p in enumerate(primes)}
 
 
 def _compute_matrix_fingerprint(
-    M: List[List[int]],
-    primes: List[int],
-    logic_signature: Dict | None = None,
+    M: List[List[int]], primes: List[int], logic_signature: Dict | None = None
 ) -> str:
     """Compute SHA-256 fingerprint of the prism.
 
@@ -133,10 +119,7 @@ def _compute_matrix_fingerprint(
 
 
 def build_cip(
-    M: List[List[int]],
-    primes: List[int],
-    cids: Dict[int, CID],
-    logic_signature: Dict,
+    M: List[List[int]], primes: List[int], cids: Dict[int, CID], logic_signature: Dict
 ) -> Dict:
     """Build the CIP (prismatic identity) for the whole prism."""
     H_total_raw = len(M)
@@ -166,10 +149,7 @@ def build_cip(
 
     fingerprint = _compute_matrix_fingerprint(M, primes, logic_signature)
 
-    defects = {
-        "model": "none",
-        "params": {},
-    }
+    defects = {"model": "none", "params": {}}
 
     return {
         "version": 1,

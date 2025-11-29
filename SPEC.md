@@ -1,6 +1,6 @@
 ---
-# GCC v1 – GiadaWare Crystal Codec  
-# **Versione:** 0.1.0 (prototype)  
+# GCC v1 – GiadaWare Crystal Codec
+# **Versione:** 0.1.0 (prototype)
 # **Autore:** Giancarlo Cicellyn Comneno
 ---
 
@@ -126,7 +126,7 @@ B(h,j) = M[h,j]
   \\]
   è la “basis monoprimo”.
 
-Le **CIDₚ** sono una **descrizione compatta** della basis lungo l’asse h per ciascun primo p.  
+Le **CIDₚ** sono una **descrizione compatta** della basis lungo l’asse h per ciascun primo p.
 La **CIP** è una descrizione compatta della basis dell’intero prisma.
 
 ---
@@ -231,7 +231,7 @@ Questa è una coordinata CF compatta nel **prisma pentagonale** sui primi (2,3,5
    - per ciascun \\(p_j\\) e livello h:
 
      \\[
-     M[h,j] = 
+     M[h,j] =
        \begin{cases}
        2^h, & \text{se il bit }h\text{ di }E_p\text{ è 1} \\
        0,   & \text{altrimenti}
@@ -273,7 +273,7 @@ Dato il prisma M:
    Ultimo livello dove p compare:
 
    \\[
-   H_p = 
+   H_p =
    \begin{cases}
    \max\{ h : c_p(h) \neq 0 \} + 1, & \text{se colonna non nulla} \\
    0, & \text{se colonna nulla}
@@ -753,7 +753,7 @@ Per il modello `identity`:
 Modulo / file principali:
 
 - `src/gcc_v1/exponents.py`
-  - `build_exponent_matrix(block, primes=None, max_prime=31)`  
+  - `build_exponent_matrix(block, primes=None, max_prime=31)`
     → costruisce M e lista `primes` (kernel byte-oriented toy).
 
 - `src/gcc_v1/logic.py`

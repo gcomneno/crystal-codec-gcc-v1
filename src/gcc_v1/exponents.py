@@ -54,9 +54,7 @@ def infer_primes_from_block(block: Iterable[int], max_prime: int = 31) -> List[i
 
 
 def build_exponent_matrix(
-    block: Iterable[int],
-    primes: List[int] | None = None,
-    max_prime: int = 31,
+    block: Iterable[int], primes: List[int] | None = None, max_prime: int = 31
 ) -> Tuple[List[List[int]], List[int]]:
     """Build a toy exponent matrix M[h][j] from a block of integers.
 

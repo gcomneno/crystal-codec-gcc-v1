@@ -53,13 +53,7 @@ class XorLogicOp:
         return bit_in
 
 
-def _apply_column(
-    column: List[int],
-    bit_in: int,
-    *,
-    p: int,
-    op: LogicOp,
-) -> int:
+def _apply_column(column: List[int], bit_in: int, *, p: int, op: LogicOp) -> int:
     """Propagate a bit through all noduli in a column for prime p."""
     s = bit_in
     for h, e in enumerate(column):
@@ -68,11 +62,7 @@ def _apply_column(
     return s
 
 
-def build_logic_signature(
-    M: List[List[int]],
-    primes: List[int],
-    op: LogicOp,
-) -> Dict:
+def build_logic_signature(M: List[List[int]], primes: List[int], op: LogicOp) -> Dict:
     """Compute the logical signature per prime.
 
     For each prime p:
@@ -99,7 +89,4 @@ def build_logic_signature(
         T1 = _apply_column(column, 1, p=p, op=op)
         logic_per_prime[p] = {"T0": int(T0), "T1": int(T1)}
 
-    return {
-        "logic_mode": op.name,
-        "per_prime": logic_per_prime,
-    }
+    return {"logic_mode": op.name, "per_prime": logic_per_prime}

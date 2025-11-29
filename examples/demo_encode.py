@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import json
 
-from gcc_v1 import encode_block, decode_block
+from gcc_v1 import decode_block, encode_block
+
 
 def main() -> None:
     block = b"Hello, GCC v1!"
@@ -18,6 +19,7 @@ def main() -> None:
     print("\n=== ROUND TRIP ===")
     print("Restored:", restored)
     print("OK:", restored == block)
+
 
 if __name__ == "__main__":
     main()
