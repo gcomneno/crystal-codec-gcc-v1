@@ -8,13 +8,13 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from gcc_v1 import encode_block
-from lab.spectral_filters import (
+from gcc_v1 import encode_block  # noqa: E402
+from lab.spectral_filters import (  # noqa: E402
     Spectrum,
     make_black_filter,
+    run_filter_pipeline,
     spectrum_black,
     spectrum_white,
-    run_filter_pipeline,
 )
 
 
