@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gcc-v1-crystal-codec"
+version = "0.1.0"
+description = "GiadaWare Crystal Codec (GCC v1) — p-adic crystal/prism prototype"
+authors = [
+  { name = "Giancarlo Cicellyn Comneno" }
+]
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[project.urls]
+"Homepage" = "https://github.com/gcomneno/crystal-codec-gcc-v1"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
