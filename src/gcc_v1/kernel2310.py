@@ -13,7 +13,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, Iterable, List, Union
 
-
 MOD_2310 = 2310
 PRIMES_PENTAGON = (2, 3, 5, 7, 11)
 
@@ -46,9 +45,9 @@ def update_state_2310(digits: Iterable[Digit]) -> int:
 class PrismSignature2310:
     """Firma prismatica pentagonale per il kernel decimale."""
 
-    s_mod: int                # n mod 2310
+    s_mod: int  # n mod 2310
     residues: Dict[int, int]  # p -> (n mod p)
-    vector: List[int]         # [r2, r3, r5, r7, r11]
+    vector: List[int]  # [r2, r3, r5, r7, r11]
 
 
 def state_to_prism_signature_2310(s: int) -> PrismSignature2310:

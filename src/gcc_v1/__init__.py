@@ -1,19 +1,14 @@
 """GiadaWare Crystal Codec (GCC v1) - Python prototype."""
 
-from .codec import encode_block, decode_block
+from .codec import decode_block, encode_block
 from .kernel2310 import (
     MOD_2310,
     PRIMES_PENTAGON,
-    update_state_2310,
-    state_to_prism_signature_2310,
     kernel_2310_from_digits,
+    state_to_prism_signature_2310,
+    update_state_2310,
 )
-from .spectrum import (
-    build_filter_bits,
-    apply_filter,
-    summarize_spectrum,
-    spectral_view,
-)
+from .spectrum import apply_filter, build_filter_bits, spectral_view, summarize_spectrum
 
 __all__ = [
     "encode_block",

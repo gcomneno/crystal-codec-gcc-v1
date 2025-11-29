@@ -21,8 +21,8 @@ from __future__ import annotations
 from typing import Dict, Iterable, Optional
 
 from .exponents import build_exponent_matrix
-from .logic import XorLogicOp, LogicOp, build_logic_signature
-from .invariants import compute_cids, build_cip
+from .invariants import build_cip, compute_cids
+from .logic import LogicOp, XorLogicOp, build_logic_signature
 
 
 def encode_block(
@@ -72,10 +72,7 @@ def encode_block(
             "row_mass": [],
             "per_prime": {},
             "logic_signature": logic_sig,
-            "defects": {
-                "model": "none",
-                "params": {},
-            },
+            "defects": {"model": "none", "params": {}},
             "matrix_fingerprint": "",
         }
     else:
@@ -92,11 +89,7 @@ def encode_block(
         "cip": cip,
     }
 
-    invariants = {
-        "cid_per_prime": {
-            int(p): cid.__dict__ for p, cid in cids.items()
-        }
-    }
+    invariants = {"cid_per_prime": {int(p): cid.__dict__ for p, cid in cids.items()}}
 
     # Residual model: identity.
     # Use a JSON-friendly representation (list of ints 0..255).
@@ -106,11 +99,7 @@ def encode_block(
         "residual_stream": list(raw_bytes),
     }
 
-    return {
-        "header": header,
-        "invariants": invariants,
-        "residual": residual,
-    }
+    return {"header": header, "invariants": invariants, "residual": residual}
 
 
 def decode_block(gcc_obj: Dict) -> bytes:

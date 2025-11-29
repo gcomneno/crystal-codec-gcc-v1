@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from gcc_v1 import encode_block, decode_block
+from gcc_v1 import decode_block, encode_block
 
 
 def test_roundtrip_identity():

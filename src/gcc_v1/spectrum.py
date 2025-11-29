@@ -36,9 +36,7 @@ def build_filter_bits(
 
 
 def apply_filter(
-    primes: List[int],
-    logic_signature: Dict,
-    filter_bits: Dict[int, int],
+    primes: List[int], logic_signature: Dict, filter_bits: Dict[int, int]
 ) -> Dict[int, int]:
     """Applica un filtro F[p] usando la logic_signature (T_p(0), T_p(1))."""
     per_prime = logic_signature.get("per_prime", {})
@@ -57,12 +55,11 @@ def apply_filter(
 
 
 def summarize_spectrum(
-    primes: List[int],
-    out_bits: Dict[int, int],
+    primes: List[int], out_bits: Dict[int, int]
 ) -> Dict[str, object]:
     """Costruisce una mini 'spettrografia numerica' dell'output."""
     bitvector: List[int] = [int(out_bits.get(p, 0)) & 1 for p in primes]
-    active_primes = [p for p, b in zip(primes, bitvector) if b == 1]
+    active_primes = [p for p, b in zip(primes, bitvector, strict=False) if b == 1]
     active_count = sum(bitvector)
     inactive_count = len(primes) - active_count
 
