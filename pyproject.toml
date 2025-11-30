@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gcc-v1-crystal-codec"
-version = "0.1.0"
+version = "0.2.0"
 description = "GiadaWare Crystal Codec (GCC v1) — p-adic crystal/prism prototype"
 authors = [
   { name = "Giancarlo Cicellyn Comneno" }
