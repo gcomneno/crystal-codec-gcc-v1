@@ -107,3 +107,8 @@ def build_exponent_matrix(
         M.append(row)
 
     return M, primes
+
+
+def build_exponent_prism(block: bytes, primes: list[int]) -> list[list[int]]:
+    """Compat wrapper per codec.py: delega alla funzione exponents esistente."""
+    return build_exponent_matrix(block, primes)
