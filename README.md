@@ -131,6 +131,79 @@ Mostra una pipeline minimale dove un filtro dipende dallo spettro precedente.
 
 ---
 
+### Cluster Signature – modalità dinamiche (`dyn`)
+
+La `cluster_signature` viene calcolata facendo evolvere gli insiemi di primi attivi
+\(A_n\) sotto una dinamica discreta `H`.
+La dinamica scelta è indicata in `cluster_signature["params"]["dyn"]`.
+
+| `dyn`             | Dove agisce                      | Idea operativa                                       | Uso tipico                          |
+|-------------------|----------------------------------|------------------------------------------------------|-------------------------------------|
+| `H-identity`      | insiemi globali \(A_n\)          | nessuna evoluzione: \(A_n = A_0\) per tutti gli n    | baseline, debugging, confronti      |
+| `H-band-quadratic`| maschere di banda \(s_k\)        | per banda: `s' = s XOR (s AND rotl(s, 1))`           | dinamica locale per banda, 2-cycle, orbite ricche |
+| `H-monster-v1`    | indici globali della base primi  | \(y = x \oplus Q(x)\), con \(Q_i = ⊕_j (x_j ∧ x_{(i-j) mod K})\) | dinamica “densa” monster-like sugli indici |
+
+In tutti i casi:
+
+- la dinamica genera una traiettoria \(A_0, A_1, …, A_N\),
+- ogni banda \(B_k\) vede solo la propria proiezione locale,
+- da questa traiettoria locale si ricavano i valori \(S_k\) e quindi il
+  `cluster_vector` e il relativo `code`.
+
+#### Come scegliere `dyn`
+
+A seconda di cosa vuoi osservare dal numero/blocco, puoi scegliere:
+
+- `H-identity`
+  Usa questa se ti interessa **solo la struttura cristallina statica**:
+  stessa A₀ per tutto il cammino, la Cluster Signature fotografa “come sono fatti” i cluster, non “come si muovono”.
+
+- `H-band-quadratic`
+  Qui la dinamica è **locale per banda**: ogni banda evolve con
+  `s' = s XOR (s AND rotl(s, 1))`.
+  È una buona scelta se vuoi vedere **come reagiscono le bande** (2-cycle, punti fissi, orbite più ricche) mantenendo una geometria abbastanza leggibile.
+
+- `H-monster-v1`
+  Questa è la modalità **monster-like sugli indici globali**:
+  lo stato viene visto come un vettore di bit su tutti i primi di base e aggiornato con una interazione quadratica densa.
+  Usala quando vuoi una **firma dinamica forte e sensibile** alla struttura globale del numero/blocco, sapendo che è la più “turbolenta” delle tre.
+
+#### Esempio: confronto fra le dinamiche
+
+Dal repo:
+
+```bash
+python examples/demo_monster_dynamics.py
+```
+
+Output (semplificato):
+```bash
+=== H-identity ===
+cluster_vector: [1, 3, 2, 3, 3]
+code: 495
+
+=== H-band-quadratic ===
+cluster_vector: [1, 1, 1, 1, 3]
+code: 343
+
+=== H-monster-v1 ===
+cluster_vector: [0, 0, 0, 0, 1]
+code: 1
+```
+
+Stesso blocco, stessa base di primi, stesse bande.
+
+Cambiando solo dyn cambiano:
+    il vettore di cluster (S₀, S₁, …, Sₙ),
+    il codice intero code.
+
+Questo rende visibile a colpo d’occhio che:
+    H-identity fotografa la struttura “statica” dei cluster,
+    H-band-quadratic mette in gioco una dinamica locale per banda,
+    H-monster-v1 applica una dinamica monster-like sugli indici globali del prisma.
+
+---
+
 ## Stato del progetto
 
 - **Versione:** 0.1.0 (prototype)
