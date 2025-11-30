@@ -12,9 +12,9 @@ from typing import Any, Mapping, Sequence
 # - Vettore di cluster CV_n = (S0, S1, ..., Sn).
 # - Codec binario code_n per CV_n.
 #
-# La dinamica H(I_n) è inizialmente uno stub ("H-identity"), ma l'interfaccia
-# è pensata per essere sostituita con la dinamica reale senza rompere il
-# formato della Cluster Signature.
+# La dinamica H(I_n) è parametrizzabile:
+# - "H-identity"       → A_n = A0 per tutti gli n;
+# - "H-band-quadratic" → dinamica quadratica sulle maschere di banda.
 
 
 # ---------------------------------------------------------------------------
@@ -197,23 +197,149 @@ def build_bands(
 
 
 # ---------------------------------------------------------------------------
-# Dinamica H (stub) e classificazione delle bande
+# Dinamica H e classificazione delle bande
 # ---------------------------------------------------------------------------
 
 
-def _run_dynamics_stub(
-    a0: set[int], *, dyn_name: str, dyn_params: Mapping[str, Any] | None, max_steps: int
-) -> list[set[int]]:
-    """Esegue la dinamica sugli insiemi A_n (stub).
+def _init_band_masks(a0: set[int], bands: Sequence[Sequence[int]]) -> list[int]:
+    """Costruisce le maschere di banda iniziali a partire da A0."""
+    masks: list[int] = []
+    for band in bands:
+        mask = 0
+        for idx, p in enumerate(band):
+            if p in a0:
+                mask |= 1 << idx
+        masks.append(mask)
+    return masks
 
-    Per ora implementiamo solo:
-        dyn_name = "H-identity" → A_n = A0 per tutti gli n.
+
+def _step_band_quadratic_masks(
+    masks: list[int], bands: Sequence[Sequence[int]]
+) -> list[int]:
+    """Applica la H quadratica per banda: s' = s XOR (s AND rotl(s, 1))."""
+    new_masks: list[int] = []
+    for mask, band in zip(masks, bands, strict=False):
+        width = len(band)
+        if width <= 0:
+            new_masks.append(0)
+            continue
+
+        if width == 1:
+            # Banda di un solo primo: la rotazione è identica,
+            # quindi s' = s XOR (s AND s) = s XOR s = 0.
+            new_masks.append(mask & 1)
+            continue
+
+        full = (1 << width) - 1
+        rot = ((mask << 1) | (mask >> (width - 1))) & full
+        quad = mask & rot
+        new_masks.append((mask ^ quad) & full)
+
+    return new_masks
+
+
+def _masks_to_set(masks: Sequence[int], bands: Sequence[Sequence[int]]) -> set[int]:
+    """Ricostruisce A_n a partire dalle maschere di banda."""
+    result: set[int] = set()
+    for mask, band in zip(masks, bands, strict=False):
+        for idx, p in enumerate(band):
+            if mask & (1 << idx):
+                result.add(p)
+    return result
+
+
+def _step_monster_indices(
+    a: set[int], basis_list: Sequence[int], index: Mapping[int, int]
+) -> set[int]:
+    """Un passo di H-monster-v1 sugli indici globali.
+
+    - x[i] = 1 se basis_list[i] ∈ a, altrimenti 0.
+    - q[i] = XOR_j (x[j] & x[(i - j) mod K])
+    - y[i] = x[i] XOR q[i]
+    """
+    k = len(basis_list)
+    if k == 0:
+        return set()
+
+    x = [0] * k
+    for p in a:
+        i = index.get(p)
+        if i is not None:
+            x[i] = 1
+
+    q = [0] * k
+    for i in range(k):
+        acc = 0
+        for j in range(k):
+            if x[j] and x[(i - j) % k]:
+                acc ^= 1
+        q[i] = acc
+
+    y = [0] * k
+    for i in range(k):
+        y[i] = x[i] ^ q[i]
+
+    return {basis_list[i] for i in range(k) if y[i]}
+
+
+def _run_dynamics(
+    a0: set[int],
+    bands: Sequence[Sequence[int]],
+    *,
+    dyn_name: str,
+    dyn_params: Mapping[str, Any] | None,
+    max_steps: int,
+) -> list[set[int]]:
+    """Esegue la dinamica sugli insiemi A_n.
+
+    Supporta:
+    - "H-identity"        → A_n = A0 per tutti gli n,
+    - "H-band-quadratic"  → per banda: s' = s XOR (s AND rotl(s, 1)),
+    - "H-monster-v1"      → dinamica quadratica globale sugli indici della base.
     """
     if dyn_params is None:
         dyn_params = {}
 
+    if max_steps < 0:
+        max_steps = 0
+
+    # Caso banale: identità
     if dyn_name == "H-identity":
         return [set(a0) for _ in range(max_steps + 1)]
+
+    # Dinamica quadratica per banda (come già definito)
+    if dyn_name == "H-band-quadratic":
+        masks = _init_band_masks(a0, bands)
+        seq: list[set[int]] = []
+        current_masks = masks
+        for step in range(max_steps + 1):
+            a_n = _masks_to_set(current_masks, bands)
+            seq.append(a_n)
+            if step == max_steps:
+                break
+            current_masks = _step_band_quadratic_masks(current_masks, bands)
+        return seq
+
+    # Dinamica "monster" globale sugli indici
+    if dyn_name == "H-monster-v1":
+        basis_set: set[int] = set()
+        for band in bands:
+            for p in band:
+                basis_set.add(int(p))
+        basis_list = sorted(basis_set)
+        if not basis_list:
+            return [set() for _ in range(max_steps + 1)]
+
+        index = {p: i for i, p in enumerate(basis_list)}
+
+        seq = []
+        current = set(a0)
+        for step in range(max_steps + 1):
+            seq.append(set(current))
+            if step == max_steps:
+                break
+            current = _step_monster_indices(current, basis_list, index)
+        return seq
 
     msg = f"dinamica cluster non supportata: {dyn_name!r}"
     raise ValueError(msg)
@@ -274,14 +400,14 @@ def _compute_cluster_vector_from_dynamics(
     max_steps: int,
 ) -> list[int]:
     """Calcola CV_n = (S0, ..., S_n) a partire da A0, bande e dinamica H."""
-    a_sequence = _run_dynamics_stub(
-        a0, dyn_name=dyn_name, dyn_params=dyn_params, max_steps=max_steps
+    a_sequence = _run_dynamics(
+        a0, bands, dyn_name=dyn_name, dyn_params=dyn_params, max_steps=max_steps
     )
+
     cluster_vector: list[int] = []
 
     for k, band in enumerate(bands):
         if not band:
-            # banda vuota: nessun primo in quella fascia → S_k = 3 (rigidissima).
             cluster_vector.append(3)
             continue
 
@@ -347,7 +473,6 @@ def compute_cluster_signature(
     dyn_params: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Costruisce il dict `cluster_signature` a partire da una CIP."""
-
     primes = cip.get("primes", [])
     primes_list = [int(p) for p in primes]
 
